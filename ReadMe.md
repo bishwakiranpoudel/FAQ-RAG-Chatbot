@@ -1,6 +1,6 @@
 # FAQ Chatbot
 
-This repository contains a chatbot that can handle greetings and answer frequently asked questions (FAQs) made for assesment round of AI Intern Application at Danson Solutions. It is built using Flask for the backend API and Streamlit for the frontend. The chatbot utilizes FAISS for efficient similarity search and SentenceTransformers for embedding generation. Additionally, an LLM-based pipeline is used for generating responses.
+This repository contains a chatbot that can handle greetings and answer frequently asked questions (FAQs) made for assesment round of AI Intern Application. It is built using Flask for the backend API and Streamlit for the frontend. The chatbot utilizes FAISS for efficient similarity search and SentenceTransformers for embedding generation. Additionally, an LLM-based pipeline is used for generating responses.
 
 ---
 
@@ -17,12 +17,9 @@ This repository contains a chatbot that can handle greetings and answer frequent
 
 ## Setup Instructions
 
-### 1. Clone the Repository or Acess the .zip file
+### 0. Ensure the python version is 3.11 or 3.12 any newer verions may cause dependencies to malfunction.
 
-```sh
-git clone <repository-url>
-cd <repository-folder>
-```
+### 1. Clone the Repository or Acess the .zip file
 
 ### 2. Install Dependencies
 
@@ -30,6 +27,12 @@ All required dependencies are listed in `requirements.txt`. Install them using:
 
 ```sh
 pip install -r requirements.txt
+```
+
+or
+
+```sh
+pip install faiss-cpu numpy sentence-transformers transformers flask huggingface_hub streamlit requests sentencepiece nltk python-dotenv
 ```
 
 ### 3. Set up Environment Variables
@@ -96,7 +99,7 @@ streamlit run app.py
 
 ## Assessment Details
 
-This project was developed as part of an AI Intern assessment at Danson Solutions. The requirements were:
+This project was developed as part of an AI Intern assessment. The requirements were:
 
 - Develop a chatbot that can handle greetings and FAQs.
 - Use any framework (Flask, Streamlit, Django, etc.).

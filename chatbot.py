@@ -15,7 +15,7 @@ load_dotenv()
 
 # Read token from environment variable
 hf_token = os.getenv("HUGGINGFACE_TOKEN")
-
+print(hf_token)
 if hf_token is None:
     raise ValueError("Hugging Face token not found. Please set it in a .env file.")
 
