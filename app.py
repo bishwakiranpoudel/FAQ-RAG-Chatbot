@@ -3,71 +3,61 @@ import requests
 
 API_URL = "http://127.0.0.1:5000/chat"
 
-# Initialize session state for chat history
+# Initialize session state variables
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "processing" not in st.session_state:
+    st.session_state.processing = False  # Track if bot is thinking
+if "user_message" not in st.session_state:
+    st.session_state.user_message = ""  # Store user input before clearing it
 
-# Apply modern styling
-st.markdown(
-    """
-    <style>
-    .message-container {
-        border-radius: 10px;
-        padding: 10px;
-        margin: 5px 0;
-        width: fit-content;
-        max-width: 80%;
-    }
-    .user-message {
-        background-color: #0078FF;
-        color: white;
-        align-self: flex-end;
-    }
-    .bot-message {
-        background-color: #F1F1F1;
-        color: black;
-        align-self: flex-start;
-    }
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+st.set_page_config(page_title="FAQ Chatbot", layout="wide")
 
 st.title("💬 FAQ Chatbot")
 st.markdown("Ask me anything and I'll respond instantly!")
 
-# Chat display using markdown
+# Chat display container
 chat_container = st.container()
 with chat_container:
     for msg in st.session_state.messages:
-        role = "👤 You" if msg["role"] == "You" else "🤖 Bot"
-        style_class = "user-message" if msg["role"] == "You" else "bot-message"
-        st.markdown(
-            f'<div class="message-container {style_class}"><strong>{role}:</strong> {msg["content"]}</div>',
-            unsafe_allow_html=True,
-        )
+        with st.chat_message("user" if msg["role"] == "You" else "assistant"):
+            st.markdown(msg["content"])
 
-# User input field
-user_input = st.text_input("Type your message...", key="user_input", help="Press Enter or click Send")
+# User input and send button
+with st.container():
+    user_input = st.text_input(
+        "Type your message...", 
+        key="user_input", 
+        help="Press Enter or click Send", 
+        value=st.session_state.user_message,  # Preserve value
+        on_change=lambda: st.session_state.update({"send_triggered": True})  # Track enter key press
+    )
+    send_btn = st.button("Send", use_container_width=True, disabled=st.session_state.processing)
 
-# Send button
-if st.button("Send", use_container_width=True):
-    if user_input.strip():
-        st.session_state.messages.append({"role": "You", "content": user_input})
-        
-        response = requests.post(API_URL, json={"query": user_input}).json()
-        bot_response = response['response'].split("Final Answer:")[-1].strip()
-        
-        st.session_state.messages.append({"role": "Bot", "content": bot_response})
-        st.rerun()
-    else:
-        st.warning("Please enter a message!")
+# Handle message sending
+if (send_btn or st.session_state.get("send_triggered", False)) and user_input.strip() and not st.session_state.processing:
+    st.session_state.processing = True  # Disable button while thinking
+    st.session_state.send_triggered = False  # Reset Enter key trigger
+    st.session_state.user_message = user_input  # Save input before clearing
+    st.rerun()
 
-# Ensure smooth layout updates
-st.markdown("<script>window.scrollTo(0,document.body.scrollHeight);</script>", unsafe_allow_html=True)
+if st.session_state.processing:
+    with st.chat_message("user"):
+        st.markdown(st.session_state.user_message)
+
+    st.session_state.messages.append({"role": "You", "content": st.session_state.user_message})
+
+    with st.spinner("Thinking..."):
+        response = requests.post(API_URL, json={"query": st.session_state.user_message}).json()
+        bot_response = response.get('response', 'I am not sure how to respond.').split("Final Answer:")[-1].strip()
+
+    with st.chat_message("assistant"):
+        st.markdown(bot_response)
+
+    st.session_state.messages.append({"role": "Bot", "content": bot_response})
+
+    # Reset processing state and clear input field
+    st.session_state.processing = False
+    st.session_state.user_message = "" 
+    
+    st.rerun()

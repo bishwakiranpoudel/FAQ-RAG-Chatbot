@@ -78,7 +78,7 @@ def chat():
     else:
         closest_question = faq_questions[closest_index[0][0]]
         retrieved_answer = faq_data[closest_question]
-        llm_response = llm_pipeline(f"Given the user's query and the FAQ response, provide a concise answer.\n\nUser: {user_query}\nFAQ Response: {retrieved_answer}\nFinal Answer:", max_length=100, do_sample=False)
+        llm_response = llm_pipeline(f"Given the user's query and the FAQ response, provide a concise answer. If the FAQ response is already consise return it\n\nUser: {user_query}\nFAQ Response: {retrieved_answer}\nFinal Answer:", max_length=100, do_sample=False)
         bot_response_text = llm_response[0]["generated_text"].strip()
     
     return jsonify({"response": bot_response_text})
